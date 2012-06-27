@@ -1,3 +1,6 @@
+Underscore doesn't manage structural equality in all of its functions.
+Structural equality in all function like uniq, intersection, etc.. in serious functional language is the default behavior.
+This fork fix this mistake.
                        __                                                         
                       /\ \                                                         __           
      __  __    ___    \_\ \     __   _ __   ____    ___    ___   _ __    __       /\_\    ____  
