@@ -485,7 +485,7 @@
     var initial = iterator ? _.map(array, iterator) : array;
     var results = [];
     _.reduce(initial, function(memo, value, index) {
-      if (isSorted ? (_.last(memo) !== value || !memo.length) : !_.include(memo, value)) {
+      if (isSorted ? ( (!(_.isEqual(_.last(memo), value))) || !memo.length) : !_.include(memo, value)) {
         memo.push(value);
         results.push(array[index]);
       }
@@ -502,15 +502,50 @@
 
   // Produce an array that contains every item shared between all the
   // passed-in arrays.
-  _.intersection = function(array) {
-    var rest = slice.call(arguments, 1);
-    return _.filter(_.uniq(array), function(item) {
-      return _.every(rest, function(other) {
-        return _.indexOf(other, item) >= 0;
-      });
-    });
+    _.intersection = function() {
+	/* Based on an Ocaml algorithm:
+	 * let rec intersect l1 l2 =
+		match l1 with
+		| [] -> []
+		| a::l -> if (List.exists (fun x -> a=x) l2) then a::(intersect l l2)
+		  else (intersect l l2);;
+	   let inter4l q s d f = List.fold_left intersect q [s;d;f];;
+	 * */
+          var myself  = this;
+	  var argsize = arguments.length;
+	  var intersect2list = function (l1,l2) {
+		  if (l1.length < 1) {
+			  return []
+		  } else {
+			  console.log("l1 et l2");
+			  console.log(l1,l2);
+			  var head = l1[0];
+			  var tail = _.tail(l1);
+			  var result = [];
+			  if (_.include(l2,head)) {
+				  console.log("tete");
+				  console.log(head)
+				   result.push(head);
+			  }
+			  var sub = intersect2list(tail,l2);
+			  if (sub.length > 0) {
+			  	result.push(sub);
+			  }
+			  return result;
+		  }
+	  };
+	 if (argsize == 0) {
+		  return [];
+	  } else if (argsize == 1) {
+		  return arguments[0];
+	  } else {
+	 	return _.foldl((_.tail(arguments)), intersect2list, arguments[0]);
+	  }
   };
 
+  
+
+ 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
